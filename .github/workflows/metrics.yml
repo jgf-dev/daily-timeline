@@ -21,6 +21,6 @@ jobs:
       - uses: lowlighter/metrics@latest
         with:
           template: repository
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           user: jgeofil
           repo: daily-timeline
