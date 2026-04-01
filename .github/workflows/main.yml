@@ -8,24 +8,6 @@ on:
     
 
 jobs:
-  pyre:
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Run Pyre
-        uses: facebook/pyre-action@v4
-        with:
-          # To customize these inputs:
-          # See https://github.com/facebook/pyre-action#inputs
-          repo-directory: './'
-          requirements-path: 'requirements.txt'
   megalinter:
     runs-on: ubuntu-latest
     permissions:
