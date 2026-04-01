@@ -1,0 +1,32 @@
+name: MegaLinter Python
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  megalinter:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run MegaLinter with Ruff
+        uses: jgeofil/_mega_linter@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          apply-fixes: 'true'
+          apply-fixes-mode: 'commit'
+          apply-fixes-event: 'pull_request'
+
+      - name: Upload linting reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: megalinter-reports
+          path: megalinter-reports/
