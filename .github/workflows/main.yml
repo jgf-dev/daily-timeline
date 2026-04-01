@@ -1,4 +1,4 @@
-name: Python Workflow
+name: megalinter
 on:
   push:
     branches: [main, develop]
