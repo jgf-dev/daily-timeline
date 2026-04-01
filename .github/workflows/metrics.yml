@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 jobs:
   metrics-get:
-    runs-on: ubuntu24.04
+    runs-on: ubuntu
     steps:
       - uses: lowlighter/metrics@latest
         with:
