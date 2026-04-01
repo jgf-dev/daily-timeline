@@ -19,6 +19,6 @@ jobs:
         uses: oven-sh/setup-bun@v2.2.0
       - name: build
         run: |
-          bun install
+          bun install -f --trust
           bun run build
               
