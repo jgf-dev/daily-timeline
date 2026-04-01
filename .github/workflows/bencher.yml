@@ -29,3 +29,8 @@ jobs:
           --adapter json \
           --github-actions '${{ secrets.GITHUB_TOKEN }}' \
           bencher mock
+      - uses: actions/checkout@v6
+      - uses: bencherdev/bencher@main
+      - name: Build time
+        run: | 
+          bencher run --adapter json --build-time "echo 0 > binary"
