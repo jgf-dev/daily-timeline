@@ -1,3 +1,5 @@
+[![build-bun](https://github.com/jgeofil/daily-timeline/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jgeofil/daily-timeline/actions/workflows/build.yml)
+
 # Daily Timeline Monorepo
 
 Production-ready monorepo scaffold for a product that captures timeline events from voice, screenshots, and manual input, then generates daily insights and review sessions.
