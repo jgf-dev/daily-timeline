@@ -19,6 +19,7 @@ jobs:
         uses: oven-sh/setup-bun@v2.2.0
       - name: build
         run: |
+          rm -f package-lock.json
           bun install -f --trust
           bun run build
               
