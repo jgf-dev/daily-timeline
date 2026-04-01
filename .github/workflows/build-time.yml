@@ -16,4 +16,16 @@ jobs:
       - uses: bencherdev/bencher@main
       - name: Build time
         run: | 
-          bencher run --adapter json --build-time "echo 0 > binary"
+          bencher run \
+          --project project-abc4567-wxyz123456789 \
+          --token '${{ secrets.BENCHER_API_TOKEN }}' \
+          --branch "$GITHUB_HEAD_REF" \
+          --start-point "$GITHUB_BASE_REF" \
+          --start-point-hash '${{ github.event.pull_request.base.sha }}' \
+          --start-point-clone-thresholds \
+          --start-point-reset \
+          --testbed ubuntu-latest \
+          --error-on-alert \
+          --adapter json \
+          --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+          --build-time "echo 0 > binary"
