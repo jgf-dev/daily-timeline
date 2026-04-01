@@ -16,15 +16,8 @@ jobs:
   metrics-get:
     runs-on: ubuntu24.04
     steps:
-      - name: Example
-        uses: jgeofil/_metrics@latest
+      - uses: lowlighter/metrics@latest
         with:
           template: repository
-          filename: metrics.repository.svg
-          token: ${{ secrets.METRICS_TOKEN_WITH_SCOPES }}
-          user: jgeofil
+          user: lowlighter
           repo: metrics
-          plugin_lines: yes
-          plugin_followup: yes
-          plugin_projects: yes
-          plugin_projects_repositories: jgeofil/_metrics/projects/1
