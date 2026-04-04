@@ -78,6 +78,20 @@ npm run typecheck
 npm run build
 ```
 
+## Pre-commit checks
+
+This repo includes a versioned Git pre-commit hook at `.githooks/pre-commit` that runs:
+
+- `npm run lint`
+- `npm run test`
+- `npm run build`
+
+Enable it locally:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ## API starter routes
 
 - `GET /health`
@@ -96,4 +110,3 @@ Use this scaffold as the baseline and add:
 - authN/authZ middleware and request scoping by user
 - observability (metrics, tracing, structured logs)
 - CI/CD with lint, test, security scans, and migrations
-
