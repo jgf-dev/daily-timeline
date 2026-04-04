@@ -1,0 +1,16 @@
+{
+  "name": "daily-timeline",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Daily timeline monorepo with frontend, backend, shared domain models, and provider/device config.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace @daily-timeline/frontend run dev",
+    "dev:backend": "npm --workspace @daily-timeline/backend run dev",
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
+  }
+}
