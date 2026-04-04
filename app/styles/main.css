@@ -1,0 +1,9 @@
+:root { font-family: Inter, system-ui, Arial, sans-serif; }
+body { margin: 2rem; background: #f9fafb; color: #111827; }
+header { margin-bottom: 2rem; }
+main { display: grid; gap: 1.5rem; max-width: 900px; }
+section { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1rem; }
+canvas { width: 100%; border: 1px dashed #9ca3af; border-radius: 8px; }
+form { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+input { flex: 1; padding: 0.5rem; }
+button { padding: 0.5rem 0.8rem; background: #2563eb; color: white; border: 0; border-radius: 6px; }
