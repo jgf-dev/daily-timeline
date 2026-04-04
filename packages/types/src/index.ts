@@ -1,5 +1,15 @@
 export type TimelineEntrySource = 'manual' | 'voice' | 'screenshot' | 'system';
 
+export interface SpeechMetadata {
+  utteranceStartAt: string;
+  utteranceEndAt: string;
+  confidence: number;
+  deviceId: string;
+  sessionId: string;
+  projectId?: string;
+  taskId?: string;
+}
+
 export interface TimelineEntry {
   id: string;
   userId: string;
@@ -8,6 +18,7 @@ export interface TimelineEntry {
   tags: string[];
   createdAt: string;
   occurredAt: string;
+  speech?: SpeechMetadata;
 }
 
 export interface VoiceCaptureSession {
@@ -17,6 +28,19 @@ export interface VoiceCaptureSession {
   endedAt: string | null;
   language: string;
   state: 'capturing' | 'processing' | 'completed' | 'failed';
+}
+
+export interface TranscriptChunk {
+  sessionId: string;
+  chunkId: string;
+  text: string;
+  startTime: string;
+  endTime: string;
+  isFinal: boolean;
+  confidence?: number;
+  deviceId: string;
+  projectId?: string;
+  taskId?: string;
 }
 
 export interface ScreenshotEvent {
