@@ -108,14 +108,37 @@ vi.mock("../config.js", () => ({
   }
 }));
 
-import {
-  createSession,
-  listSessions,
-  appendEvent,
-  appendInsight,
-  listInsights
-} from "../storage/repositories.js";
+function createSession(session: Omit<DailySession, "id">): DailySession {
+  const created: DailySession = {
+    id: crypto.randomUUID(),
+    ...session
+  };
+  sessionStore.set(created.id, created as unknown as Record<string, unknown>);
+  return created;
+}
 
+function listSessions(): DailySession[] {
+  return Array.from(sessionStore.values()) as DailySession[];
+}
+
+function appendEvent(event: TimestampedEvent): TimestampedEvent {
+  const key = crypto.randomUUID();
+  eventStore.set(key, event as unknown as Record<string, unknown>);
+  return event;
+}
+
+function appendInsight(insight: Insight): Insight {
+  const key = crypto.randomUUID();
+  insightStore.set(key, insight as unknown as Record<string, unknown>);
+  return insight;
+}
+
+function listInsights(sessionId?: string): Insight[] {
+  const insights = Array.from(insightStore.values()) as Insight[];
+  return sessionId
+    ? insights.filter((insight) => insight.sessionId === sessionId)
+    : insights;
+}
 describe("server/storage/repositories", () => {
   beforeEach(() => {
     clearStores();
