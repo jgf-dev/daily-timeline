@@ -30,7 +30,7 @@ jobs:
         uses: bradennapier/eslint-plus-action@v3
         with:
           # GitHub repository token for publishing inline lint annotations. Should be secrets.GITHUB_TOKEN.
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: test
         run: |
