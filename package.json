@@ -1,8 +1,8 @@
 {
   "name": "daily-timeline",
-  "version": "0.1.0",
   "private": true,
-  "description": "Monorepo for Daily Timeline product",
+  "version": "0.1.0",
+  "description": "Daily timeline monorepo with web, api, shared domain models, and provider/device config.",
   "workspaces": [
     "apps/*",
     "packages/*"

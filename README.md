@@ -1,112 +1,87 @@
-[![build-bun](https://github.com/jgeofil/daily-timeline/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jgeofil/daily-timeline/actions/workflows/build.yml)
+# Daily Timeline
 
-# Daily Timeline Monorepo
+Initial monorepo scaffold for a real-time "rolling daily timeline" application with clear boundaries between capture, storage, analysis, and presentation.
 
-Production-ready monorepo scaffold for a product that captures timeline events from voice, screenshots, and manual input, then generates daily insights and review sessions.
-
-## Repository structure
+## Monorepo Layout
 
 ```text
-daily-timeline/
-├── apps/
-│   ├── api/         # Fastify backend for ingestion/orchestration/insights
-│   └── web/         # React + Vite rolling timeline canvas UI starter
-├── packages/
-│   └── types/       # Shared domain model and schema contracts
-├── .env.example     # Global env template
-├── package.json     # Workspace root
-└── tsconfig.base.json
+apps/
+  frontend/   # Timeline canvas + end-of-day review UI
+  backend/    # API + websocket ingestion/retrieval service
+packages/
+  domain/     # Shared domain models/types
+  config/     # Provider and local device configuration
 ```
 
-## Domain model initialized
+## Architecture Boundaries
 
-The shared package includes the key entities for end-to-end product evolution:
+### Capture
+* Transcript and screenshot producers send events to backend ingestion endpoints.
+* Websocket channels exist for low-latency event streams (`/ws/transcript`, `/ws/screenshot`, `/ws/review`).
 
-- `TimelineEntry`
-- `VoiceCaptureSession`
-- `ScreenshotEvent`
-- `Insight`
-- `DailyReviewSession`
+### Storage
+* Backend has dedicated in-memory stores/services (`TimelineStore`, `ReviewSessionStore`) and a `DeepSearchQueue` for asynchronous augmentation jobs.
+* These are isolated in `apps/backend/src/services` to make persistence swaps easy (SQLite/Postgres/Redis later).
 
-These are defined in `packages/types/src/index.ts` and consumed by both web and API workspaces.
+### Analysis
+* `POST /jobs/deep-search` creates enrichment jobs tied to timeline entries.
+* Shared model types include `GeneratedInsight` and `ReviewCorrection` to support generated summaries and human corrections.
 
-## Tech stack
+### Presentation
+* Frontend contains a `TimelineCanvas` component for rolling timeline playback.
+* Frontend contains `EndOfDayReviewPanel` for daily review session controls and correction acceptance.
 
-- **Monorepo:** npm workspaces
-- **Frontend (`apps/web`):** React + TypeScript + Vite
-- **Backend (`apps/api`):** Fastify + TypeScript + Zod configuration validation
-- **Shared contracts (`packages/types`):** TypeScript package for domain models
+## API + Channel Surface (Initial)
 
-## Quick start
+### REST API
+* `POST /ingest/transcript` — live transcript ingestion.
+* `POST /ingest/screenshot` — screenshot event ingestion.
+* `GET /timeline` — timeline entry retrieval.
+* `POST /jobs/deep-search` and `GET /jobs/deep-search` — search/deep-search augmentation jobs.
+* `GET /review/session` and `PUT /review/session` — end-of-day review session state.
+* `GET /health` — service health check.
 
-### 1) Install dependencies
+### Websocket Channels
+* `/ws/transcript`
+* `/ws/screenshot`
+* `/ws/review`
 
-```bash
-npm install
-```
+## Shared Domain Models
 
-### 2) Configure environment variables
+`packages/domain/src/models.ts` defines:
+* Timeline entries
+* Voice transcript segments
+* Screenshots
+* Projects / tasks / context tags
+* Generated insights
+* Review corrections
+* End-of-day review session
 
-Copy templates and fill required secrets:
+## Provider + Device Configuration
 
-```bash
-cp .env.example .env
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env
-```
+`packages/config` includes configuration points for:
+* Speech-to-text provider selection
+* Search provider selection
+* Screenshot analysis provider selection
+* Image generation provider selection
+* Local audio devices
+* Screenshot capture mode/interval/retention/path
 
-Required values to set for real environments:
+## Local Setup
 
-- `JWT_SECRET`
-- provider API keys (`OPENAI_API_KEY`, `DEEPGRAM_API_KEY`, etc.)
-- storage credentials (`S3_*`)
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the API service:
+   ```bash
+   npm run dev:api
 
-### 3) Run services locally
+## Real-Time Event Flow (Short)
 
-```bash
-npm run dev:api
-npm run dev:web
-```
-
-- API default URL: `http://localhost:4000`
-- Web default URL: `http://localhost:5173`
-
-## Build and validation
-
-```bash
-npm run typecheck
-npm run build
-```
-
-## Pre-commit checks
-
-This repo includes a versioned Git pre-commit hook at `.githooks/pre-commit` that runs:
-
-- `npm run lint`
-- `npm run test`
-- `npm run build`
-
-Enable it locally:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-## API starter routes
-
-- `GET /health`
-- `GET /timeline/entries`
-- `GET /voice/sessions`
-- `GET /screenshots/events`
-- `GET /insights`
-
-## Production-hardening checklist
-
-Use this scaffold as the baseline and add:
-
-- persistent storage (PostgreSQL + object storage)
-- background jobs for transcription and insight generation
-- event queue for ingestion pipelines
-- authN/authZ middleware and request scoping by user
-- observability (metrics, tracing, structured logs)
-- CI/CD with lint, test, security scans, and migrations
+1. Local capture services produce transcript and screenshot events.
+2. Events are ingested through backend REST endpoints and optionally fanned out over websocket channels.
+3. Backend normalizes events into `TimelineEntry` records.
+4. Frontend pulls timeline entries and renders the rolling canvas.
+5. Deep-search jobs augment context and generate insights.
+6. End-of-day review session applies user corrections that feed future analysis quality.

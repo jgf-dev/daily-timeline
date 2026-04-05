@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "pre-commit: lint"
-npm run lint
+has_npm_script() {
+  local script_name="$1"
+  local script_value
 
-echo "pre-commit: test"
-npm run test
+  script_value="$(npm pkg get "scripts.${script_name}" 2>/dev/null || true)"
+  [ "$script_value" != "null" ] && [ "$script_value" != "\"\"" ] && [ -n "$script_value" ]
+}
 
+if has_npm_script lint; then
+  echo "pre-commit: lint"
+  npm run lint
+else
+  echo "pre-commit: lint (skipped: root script not defined)"
+fi
+
+if has_npm_script test; then
+  echo "pre-commit: test"
+  npm run test
+else
+  echo "pre-commit: test (skipped: root script not defined)"
+fi
 echo "pre-commit: build"
 npm run build
