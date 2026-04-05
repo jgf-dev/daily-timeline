@@ -9,7 +9,7 @@ vi.mock("../storage/repositories.js", () => ({
   }))
 }));
 
-import { buildReviewInsight } from "../jobs/review-job.js";
+import { buildReviewInsight } from "../jobs/review-job";
 import { appendInsight } from "../storage/repositories.js";
 
 describe("server/jobs/review-job", () => {
