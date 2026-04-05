@@ -73,13 +73,9 @@ packages/
    ```bash
    npm install
    ```
-2. Start backend:
+2. Start the API service:
    ```bash
    npm run dev:api
-   ```
-
-Backend default address: `http://127.0.0.1:4200`.
-Frontend default address: `http://127.0.0.1:5173`.
 
 ## Real-Time Event Flow (Short)
 
