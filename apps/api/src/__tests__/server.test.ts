@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
 import type { Insight, ScreenshotEvent, TimelineEntry, VoiceCaptureSession } from '@daily-timeline/types';
 
 /**
@@ -9,6 +10,12 @@ import type { Insight, ScreenshotEvent, TimelineEntry, VoiceCaptureSession } fro
  */
 function buildApp(): FastifyInstance {
   const app = Fastify({ logger: false });
+
+  app.register(cors, {
+    origin: ['http://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  });
 
   const timelineEntries: TimelineEntry[] = [];
   const voiceSessions: VoiceCaptureSession[] = [];
@@ -146,6 +153,47 @@ describe('API server routes', () => {
         expect(Array.isArray(body.data)).toBe(true);
         expect(body.data).toHaveLength(0);
       }
+    });
+  });
+
+  describe('CORS configuration', () => {
+    it('returns Access-Control-Allow-Origin header for allowed origin', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/health',
+        headers: {
+          origin: 'http://localhost:5173'
+        }
+      });
+
+      expect(response.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+    });
+
+    it('does not return Access-Control-Allow-Origin header for disallowed origin', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/health',
+        headers: {
+          origin: 'http://malicious-site.com'
+        }
+      });
+
+      expect(response.headers['access-control-allow-origin']).toBeUndefined();
+    });
+
+    it('returns CORS headers for OPTIONS preflight request', async () => {
+      const response = await app.inject({
+        method: 'OPTIONS',
+        url: '/health',
+        headers: {
+          origin: 'http://localhost:5173',
+          'access-control-request-method': 'GET'
+        }
+      });
+
+      expect(response.statusCode).toBe(204);
+      expect(response.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+      expect(response.headers['access-control-allow-methods']).toContain('GET');
     });
   });
 });
