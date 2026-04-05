@@ -31,12 +31,6 @@ jobs:
         with:
           # GitHub repository token for publishing inline lint annotations. Should be secrets.GITHUB_TOKEN.
           github-token: ${{ github.token }}
-          # Use eslintrc?  Defaults to true
-          useEslintrc: # optional
-          # Set to false to not use eslintignore. Defaults to true
-          useEslintIgnore: # optional
-          # Run with --fix? Defaults to false
-          fix: # optional
           
       - name: test
         run: |
