@@ -56,9 +56,10 @@ export function registerRoutes(
       schema: {
         body: {
           type: 'object',
-          required: ['id', 'capturedAt', 'projectIds', 'taskIds', 'contextTagIds'],
+          required: ['id', 'path', 'capturedAt', 'projectIds', 'taskIds', 'contextTagIds'],
           properties: {
             id: { type: 'string' },
+            path: { type: 'string' },
             capturedAt: { type: 'string' },
             description: { type: 'string' },
             projectIds: { type: 'array', items: { type: 'string' } },
