@@ -2,7 +2,7 @@
   "name": "daily-timeline",
   "private": true,
   "version": "0.1.0",
-  "description": "Daily timeline monorepo with frontend, backend, shared domain models, and provider/device config.",
+  "description": "Daily timeline monorepo with web, api, shared domain models, and provider/device config.",
   "workspaces": [
     "apps/*",
     "packages/*"
