@@ -19,6 +19,7 @@
     "@daily-timeline/domain": "file:../domain"
   },
   "devDependencies": {
+    "@types/node": "^22.13.14",
     "typescript": "^5.8.2"
   }
 }
