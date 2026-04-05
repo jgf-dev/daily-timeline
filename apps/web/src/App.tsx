@@ -1,4 +1,5 @@
 import type { DailyReviewSession, Insight, TimelineEntry, VoiceCaptureSession } from '@daily-timeline/types';
+import { useVoiceCaptureSession } from './audio/useVoiceCaptureSession';
 
 const timelineEntries: TimelineEntry[] = [
   {
@@ -8,7 +9,16 @@ const timelineEntries: TimelineEntry[] = [
     createdAt: new Date().toISOString(),
     occurredAt: new Date().toISOString(),
     text: 'Drafted product architecture and wrote implementation notes.',
-    tags: ['architecture', 'planning']
+    tags: ['architecture', 'planning', 'voice capture session'],
+    speech: {
+      utteranceStartAt: new Date().toISOString(),
+      utteranceEndAt: new Date().toISOString(),
+      confidence: 0.94,
+      deviceId: 'browser-default-mic',
+      sessionId: 'voice-session-1',
+      projectId: 'project-123',
+      taskId: 'task-456'
+    }
   }
 ];
 
@@ -40,12 +50,26 @@ const review: DailyReviewSession = {
 };
 
 export function App() {
+  const { captureState, lastError, startCapture, stopCapture } = useVoiceCaptureSession();
+
   return (
     <main className="app-shell">
       <header>
         <h1>Daily Timeline</h1>
         <p>Rolling canvas UI starter for timeline capture and review.</p>
       </header>
+
+      <section>
+        <h2>Voice Controls</h2>
+        <p>Recording state: {captureState}</p>
+        <button type="button" onClick={() => void startCapture()} disabled={captureState === 'recording'}>
+          Start recording
+        </button>
+        <button type="button" onClick={() => void stopCapture()} disabled={captureState !== 'recording'}>
+          Stop recording
+        </button>
+        {lastError ? <p role="alert">{lastError}</p> : null}
+      </section>
 
       <section>
         <h2>TimelineEntry</h2>

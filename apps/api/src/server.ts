@@ -1,23 +1,40 @@
-import Fastify from 'fastify';
-import type { Insight, ScreenshotEvent, TimelineEntry, VoiceCaptureSession } from '@daily-timeline/types';
-import { readConfig } from './config';
+import path from 'node:path';
+import { config as loadEnv } from 'dotenv';
+import { env } from 'node:process';
+import Fastify, { type FastifyServerOptions } from 'fastify';
+import { readConfig, type ApiConfig } from './config';
+import { registerRoutes } from './routes';
 
-const config = readConfig(process.env);
-const server = Fastify({ logger: { level: config.LOG_LEVEL } });
+loadEnv({ path: path.resolve(process.cwd(), '../../.env') });
+loadEnv({ path: path.resolve(process.cwd(), '.env') });
 
-const timelineEntries: TimelineEntry[] = [];
-const voiceSessions: VoiceCaptureSession[] = [];
-const screenshotEvents: ScreenshotEvent[] = [];
-const insights: Insight[] = [];
+function buildLoggerOptions(level: ApiConfig['LOG_LEVEL']): FastifyServerOptions['logger'] {
+  if (process.env.NODE_ENV === 'production') {
+    return { level };
+  }
+  return {
+    level,
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        translateTime: 'HH:MM:ss Z',
+        ignore: 'pid,hostname',
+      },
+    },
+  };
+}
 
-server.get('/health', async () => ({ ok: true, service: 'daily-timeline-api' }));
+const config = readConfig(env);
+const server = Fastify({ logger: buildLoggerOptions(config.LOG_LEVEL) });
 
-server.get('/timeline/entries', async () => ({ data: timelineEntries }));
-server.get('/voice/sessions', async () => ({ data: voiceSessions }));
-server.get('/screenshots/events', async () => ({ data: screenshotEvents }));
-server.get('/insights', async () => ({ data: insights }));
+registerRoutes(server);
 
-server.listen({ port: config.PORT, host: '0.0.0.0' }).catch((error) => {
-  server.log.error(error);
-  process.exit(1);
-});
+server
+  .listen({ port: config.PORT, host: '0.0.0.0' })
+  .then((address) => {
+    server.log.info({ address }, 'server listening');
+  })
+  .catch((error) => {
+    server.log.error(error);
+    process.exit(1);
+  });
