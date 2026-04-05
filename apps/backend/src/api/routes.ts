@@ -51,21 +51,40 @@ export function registerRoutes(
     return { ok: true };
   });
 
-  app.post('/ingest/screenshot', async (request) => {
-    const screenshot = request.body as Screenshot;
-    timelineStore.ingest({
-      id: `entry-${screenshot.id}`,
-      timestamp: screenshot.capturedAt,
-      type: 'screenshot',
-      summary: screenshot.description ?? 'Screenshot captured.',
-      screenshotId: screenshot.id,
-      projectIds: screenshot.projectIds,
-      taskIds: screenshot.taskIds,
-      contextTagIds: screenshot.contextTagIds
-    });
+  app.post<{ Body: Screenshot }>(
+    '/ingest/screenshot',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['id', 'capturedAt', 'projectIds', 'taskIds', 'contextTagIds'],
+          properties: {
+            id: { type: 'string' },
+            capturedAt: { type: 'string' },
+            description: { type: 'string' },
+            projectIds: { type: 'array', items: { type: 'string' } },
+            taskIds: { type: 'array', items: { type: 'string' } },
+            contextTagIds: { type: 'array', items: { type: 'string' } }
+          }
+        }
+      }
+    },
+    async (request) => {
+      const screenshot = request.body;
+      timelineStore.ingest({
+        id: `entry-${screenshot.id}`,
+        timestamp: screenshot.capturedAt,
+        type: 'screenshot',
+        summary: screenshot.description ?? 'Screenshot captured.',
+        screenshotId: screenshot.id,
+        projectIds: screenshot.projectIds,
+        taskIds: screenshot.taskIds,
+        contextTagIds: screenshot.contextTagIds
+      });
 
-    return { ok: true };
-  });
+      return { ok: true };
+    }
+  );
 
   app.get('/timeline', async () => ({ entries: timelineStore.list() }));
 
