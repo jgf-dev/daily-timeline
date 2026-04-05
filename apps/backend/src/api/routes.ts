@@ -4,9 +4,9 @@ import type {
   Screenshot,
   TranscriptSegment
 } from '@daily-timeline/domain';
-import { DeepSearchQueue } from '../services/jobQueue';
-import { ReviewSessionStore } from '../services/reviewSessionStore';
-import { TimelineStore } from '../services/timelineStore';
+import { DeepSearchQueue } from '../services/jobQueue.js';
+import { ReviewSessionStore } from '../services/reviewSessionStore.js';
+import { TimelineStore } from '../services/timelineStore.js';
 
 export function registerRoutes(
   app: FastifyInstance,
