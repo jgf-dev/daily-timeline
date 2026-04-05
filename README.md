@@ -75,11 +75,7 @@ packages/
    ```
 2. Start backend:
    ```bash
-   npm run dev:backend
-   ```
-3. Start frontend:
-   ```bash
-   npm run dev:frontend
+   npm run dev:api
    ```
 
 Backend default address: `http://127.0.0.1:4200`.
