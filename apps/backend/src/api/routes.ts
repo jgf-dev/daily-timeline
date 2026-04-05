@@ -37,20 +37,19 @@ export function registerRoutes(
     },
     async (request) => {
       const segment = request.body;
-    timelineStore.ingest({
-      id: `entry-${segment.id}`,
-      timestamp: segment.startTime,
-      type: 'transcript',
-      summary: segment.text,
-      transcriptSegmentId: segment.id,
-      projectIds: segment.projectIds,
-      taskIds: segment.taskIds,
-      contextTagIds: segment.contextTagIds
+      timelineStore.ingest({
+        id: `entry-${segment.id}`,
+        timestamp: segment.startTime,
+        type: 'transcript',
+        summary: segment.text,
+        transcriptSegmentId: segment.id,
+        projectIds: segment.projectIds,
+        taskIds: segment.taskIds,
+        contextTagIds: segment.contextTagIds
+      });
+
+      return { ok: true };
     });
-
-    return { ok: true };
-  });
-
   app.post<{ Body: Screenshot }>(
     '/ingest/screenshot',
     {
