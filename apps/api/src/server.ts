@@ -1,9 +1,16 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
 import type { Insight, ScreenshotEvent, TimelineEntry, VoiceCaptureSession } from '@daily-timeline/types';
 import { readConfig } from './config';
 
 const config = readConfig(process.env);
 const server = Fastify({ logger: { level: config.LOG_LEVEL } });
+
+server.register(cors, {
+  origin: ['http://localhost:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+});
 
 const timelineEntries: TimelineEntry[] = [];
 const voiceSessions: VoiceCaptureSession[] = [];
