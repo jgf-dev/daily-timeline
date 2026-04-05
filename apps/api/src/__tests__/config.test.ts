@@ -78,7 +78,7 @@ describe('readConfig', () => {
     });
 
     it('accepts JWT_SECRET exactly 16 characters long (minimum length)', () => {
-      const exactMinSecret = 'exactly16charssS';
+      const exactMinSecret = 'atLeastSixteenCh';
       expect(exactMinSecret.length).toBe(16);
       const config = readConfig({ JWT_SECRET: exactMinSecret });
       expect(config.JWT_SECRET).toBe(exactMinSecret);

@@ -17,7 +17,7 @@ server.get('/voice/sessions', async () => ({ data: voiceSessions }));
 server.get('/screenshots/events', async () => ({ data: screenshotEvents }));
 server.get('/insights', async () => ({ data: insights }));
 
-server.listen({ port: config.PORT, host: '0.0.0.0' }).catch((error) => {
-  server.log.error(error);
+server.listen({ port: config.PORT, host: '0.0.0.0' }).catch((error: unknown) => {
+  server.log.error(error as Error);
   process.exit(1);
 });

@@ -14,12 +14,13 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+      security-events: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run MegaLinter with Ruff
-        uses: jgeofil/_mega_linter@v1
+        uses: jgeofil/_mega_linter@38ec200b3e55c11060938da698246e7f1011500d # v1.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           apply-fixes: 'true'
