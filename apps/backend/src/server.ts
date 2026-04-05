@@ -1,11 +1,11 @@
 import Fastify from 'fastify';
 import websocket from '@fastify/websocket';
-import { registerRoutes } from './api/routes';
-import { registerWebsocketChannels } from './ws/channels';
+import { registerRoutes } from './api/routes.js';
+import { registerWebsocketChannels } from './ws/channels.js';
 import { appConfig } from '@daily-timeline/config';
-import { DeepSearchQueue } from './services/jobQueue';
-import { ReviewSessionStore } from './services/reviewSessionStore';
-import { TimelineStore } from './services/timelineStore';
+import { DeepSearchQueue } from './services/jobQueue.js';
+import { ReviewSessionStore } from './services/reviewSessionStore.js';
+import { TimelineStore } from './services/timelineStore.js';
 
 const app = Fastify({ logger: true });
 
