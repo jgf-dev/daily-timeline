@@ -1,112 +1,92 @@
-[![build-bun](https://github.com/jgeofil/daily-timeline/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jgeofil/daily-timeline/actions/workflows/build.yml)
+# Daily Timeline (Minimal Full-Stack Starter)
 
-# Daily Timeline Monorepo
+A minimal full-stack application that separates:
 
-Production-ready monorepo scaffold for a product that captures timeline events from voice, screenshots, and manual input, then generates daily insights and review sessions.
+- **Capture**: API endpoints for timeline events, transcript chunks, screenshots, and diary data.
+- **Storage**: SQLite schema for sessions + timestamped artifacts.
+- **Analysis**: background job modules and integration provider stubs.
+- **UI**: browser UI with timeline canvas, review workflow, and settings section.
 
-## Repository structure
+## Project Layout
 
-```text
-daily-timeline/
-├── apps/
-│   ├── api/         # Fastify backend for ingestion/orchestration/insights
-│   └── web/         # React + Vite rolling timeline canvas UI starter
-├── packages/
-│   └── types/       # Shared domain model and schema contracts
-├── .env.example     # Global env template
-├── package.json     # Workspace root
-└── tsconfig.base.json
-```
+- `server/`
+  - `routes/`: API routes (`/api/sessions`, `/api/events`, `/api/insights`)
+  - `jobs/`: background pipelines (enrichment + review)
+  - `integrations/`: provider adapters for transcription, voice chat, screenshot analysis, image generation
+  - `storage/`: SQLite initialization + repositories
+  - `config.ts`: env/secret loading and validation
+- `app/`
+  - `index.html`: timeline canvas view, review session UI, settings screen
+  - `scripts/main.js`: browser behavior
+  - `styles/main.css`: minimal styling
+- `shared/models.ts`
+  - shared domain models for `DiaryEntry`, `TranscriptSegment`, `ScreenshotEvent`, `Insight`, `ProjectContext`, and `DailySession`
+- `.env.example`
+  - local development configuration + secret placeholders
 
-## Domain model initialized
+## Requirements
 
-The shared package includes the key entities for end-to-end product evolution:
+- Node.js 20+
 
-- `TimelineEntry`
-- `VoiceCaptureSession`
-- `ScreenshotEvent`
-- `Insight`
-- `DailyReviewSession`
+## Local Development
 
-These are defined in `packages/types/src/index.ts` and consumed by both web and API workspaces.
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Copy env template:
+   ```bash
+   cp .env.example .env
+   ```
+3. Start the app:
+   ```bash
+   npm run dev
+   ```
+4. Open:
+   - `http://localhost:3000` for UI
+   - `http://localhost:3000/api/health` for API health
 
-## Tech stack
+## API Quickstart
 
-- **Monorepo:** npm workspaces
-- **Frontend (`apps/web`):** React + TypeScript + Vite
-- **Backend (`apps/api`):** Fastify + TypeScript + Zod configuration validation
-- **Shared contracts (`packages/types`):** TypeScript package for domain models
-
-## Quick start
-
-### 1) Install dependencies
-
-```bash
-npm install
-```
-
-### 2) Configure environment variables
-
-Copy templates and fill required secrets:
-
-```bash
-cp .env.example .env
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env
-```
-
-Required values to set for real environments:
-
-- `JWT_SECRET`
-- provider API keys (`OPENAI_API_KEY`, `DEEPGRAM_API_KEY`, etc.)
-- storage credentials (`S3_*`)
-
-### 3) Run services locally
+Create a session:
 
 ```bash
-npm run dev:api
-npm run dev:web
+curl -X POST http://localhost:3000/api/sessions \
+  -H 'Content-Type: application/json' \
+  -d '{"timezone":"UTC","status":"active"}'
 ```
 
-- API default URL: `http://localhost:4000`
-- Web default URL: `http://localhost:5173`
-
-## Build and validation
+Add timestamped event:
 
 ```bash
-npm run typecheck
-npm run build
+curl -X POST http://localhost:3000/api/events \
+  -H 'Content-Type: application/json' \
+  -d '{"sessionId":"<session-id>","eventType":"activity","payload":{"source":"desktop"}}'
 ```
 
-## Pre-commit checks
-
-This repo includes a versioned Git pre-commit hook at `.githooks/pre-commit` that runs:
-
-- `npm run lint`
-- `npm run test`
-- `npm run build`
-
-Enable it locally:
+Add insight (review result):
 
 ```bash
-git config core.hooksPath .githooks
+curl -X POST http://localhost:3000/api/insights \
+  -H 'Content-Type: application/json' \
+  -d '{"sessionId":"<session-id>","content":"Focused coding block after lunch"}'
 ```
 
-## API starter routes
+## Persistence Model
 
-- `GET /health`
-- `GET /timeline/entries`
-- `GET /voice/sessions`
-- `GET /screenshots/events`
-- `GET /insights`
+`server/storage/db.ts` defines tables for:
 
-## Production-hardening checklist
+- sessions
+- diary entries
+- transcript segments
+- screenshot events
+- timestamped events
+- insights (enrichment results)
+- user corrections
 
-Use this scaffold as the baseline and add:
+The SQLite DB file is controlled by `DATABASE_PATH` (defaults to `./data/daily-timeline.db`).
 
-- persistent storage (PostgreSQL + object storage)
-- background jobs for transcription and insight generation
-- event queue for ingestion pipelines
-- authN/authZ middleware and request scoping by user
-- observability (metrics, tracing, structured logs)
-- CI/CD with lint, test, security scans, and migrations
+## Notes
+
+- Integration clients are intentionally lightweight stubs so you can wire real APIs later.
+- This setup aims to be a clean starting point, not a production-ready architecture.

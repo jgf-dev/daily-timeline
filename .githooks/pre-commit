@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "pre-commit: lint"
-npm run lint
+run_if_defined() {
+  local script="$1"
 
-echo "pre-commit: test"
-npm run test
+  if [ "$(npm pkg get "scripts.${script}" 2>/dev/null)" != "{}" ]; then
+    echo "pre-commit: ${script}"
+    npm run "${script}"
+  else
+    echo "pre-commit: ${script} (skipped: script not defined in root package.json)"
+  fi
+}
 
-echo "pre-commit: build"
-npm run build
+run_if_defined lint
+run_if_defined test
+run_if_defined build

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Timeline</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Daily Timeline</h1>
+      <p>Capture → Store → Analyze → Review</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>Timeline Canvas</h2>
+        <canvas id="timelineCanvas" width="900" height="180"></canvas>
+      </section>
+
+      <section>
+        <h2>Review Session</h2>
+        <div id="reviewList"></div>
+        <form id="insightForm">
+          <input id="sessionIdInput" placeholder="Session ID" required />
+          <input id="insightInput" placeholder="Add insight" required />
+          <button type="submit">Save Insight</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Settings</h2>
+        <ul>
+          <li>Transcription: <span id="transcriptionModel"></span></li>
+          <li>Voice chat: <span id="voiceModel"></span></li>
+          <li>Screenshot analysis: <span id="screenshotModel"></span></li>
+          <li>Image generation: <span id="imageModel"></span></li>
+        </ul>
+      </section>
+    </main>
+
+    <script type="module" src="/scripts/main.js"></script>
+  </body>
+</html>
