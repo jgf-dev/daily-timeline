@@ -9,12 +9,6 @@ export class TimelineStore {
       throw new Error('Invalid timeline entry timestamp');
     }
     this.entries.push({ ...entry, timestamp: new Date(parsed).toISOString() });
-  ingest(entry: TimelineEntry) {
-    const parsed = Date.parse(entry.timestamp);
-    if (Number.isNaN(parsed)) {
-      throw new Error('Invalid timeline entry timestamp');
-    }
-    this.entries.push({ ...entry, timestamp: new Date(parsed).toISOString() });
   }
 
   list(): TimelineEntry[] {
