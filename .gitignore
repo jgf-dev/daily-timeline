@@ -65,3 +65,4 @@ coverage
 *.log
 .env
 .env.local
+.eslintcache
