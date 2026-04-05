@@ -88,18 +88,37 @@ export function registerRoutes(
 
   app.get('/timeline', async () => ({ entries: timelineStore.list() }));
 
-  app.post('/jobs/deep-search', async (request) => {
-    const body = request.body as { query: string; timelineEntryIds: string[] };
+  app.post<{ Body: { query: string; timelineEntryIds: string[] } }>(
+    '/jobs/deep-search',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['query', 'timelineEntryIds'],
+          properties: {
+            query: { type: 'string', minLength: 1 },
+            timelineEntryIds: {
+              type: 'array',
+              minItems: 1,
+              items: { type: 'string', minLength: 1 }
+            }
+          }
+        }
+      }
+    },
+    async (request) => {
+      const body = request.body;
 
-    const job = deepSearchQueue.enqueue({
-      id: crypto.randomUUID(),
-      query: body.query,
-      timelineEntryIds: body.timelineEntryIds,
-      createdAt: new Date().toISOString()
-    });
+      const job = deepSearchQueue.enqueue({
+        id: crypto.randomUUID(),
+        query: body.query,
+        timelineEntryIds: body.timelineEntryIds,
+        createdAt: new Date().toISOString()
+      });
 
-    return { job };
-  });
+      return { job };
+    }
+  );
 
   app.get('/jobs/deep-search', async () => ({ jobs: deepSearchQueue.list() }));
 
