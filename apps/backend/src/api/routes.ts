@@ -14,8 +14,29 @@ export function registerRoutes(
   deepSearchQueue: DeepSearchQueue,
   reviewSessionStore: ReviewSessionStore
 ) {
-  app.post('/ingest/transcript', async (request) => {
-    const segment = request.body as TranscriptSegment;
+  app.post<{ Body: TranscriptSegment }>(
+    '/ingest/transcript',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['id', 'source', 'text', 'startTime', 'endTime', 'projectIds', 'taskIds', 'contextTagIds'],
+          properties: {
+            id: { type: 'string' },
+            source: { type: 'string', enum: ['microphone', 'system-audio'] },
+            text: { type: 'string' },
+            startTime: { type: 'string' },
+            endTime: { type: 'string' },
+            confidence: { type: 'number' },
+            projectIds: { type: 'array', items: { type: 'string' } },
+            taskIds: { type: 'array', items: { type: 'string' } },
+            contextTagIds: { type: 'array', items: { type: 'string' } }
+          }
+        }
+      }
+    },
+    async (request) => {
+      const segment = request.body;
     timelineStore.ingest({
       id: `entry-${segment.id}`,
       timestamp: segment.startTime,
