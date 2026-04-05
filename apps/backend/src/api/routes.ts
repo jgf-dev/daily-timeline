@@ -130,19 +130,22 @@ export function registerRoutes(
       schema: {
         body: {
           type: 'object',
-          required: ['id', 'date', 'status', 'selectedEntryIds'],
+          additionalProperties: false,
+          required: [
+            'id',
+            'date',
+            'status',
+            'selectedEntryIds',
+            'generatedInsightIds',
+            'correctionIds'
+          ],
           properties: {
             id: { type: 'string' },
             date: { type: 'string' },
             status: { type: 'string' },
             selectedEntryIds: { type: 'array', items: { type: 'string' } },
-            selectedTranscriptSegmentIds: { type: 'array', items: { type: 'string' } },
-            selectedScreenshotIds: { type: 'array', items: { type: 'string' } },
-            notes: { type: 'string' },
-            summary: { type: 'string' },
-            createdAt: { type: 'string' },
-            updatedAt: { type: 'string' },
-            completedAt: { type: 'string' }
+            generatedInsightIds: { type: 'array', items: { type: 'string' } },
+            correctionIds: { type: 'array', items: { type: 'string' } }
           }
         }
       }
