@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { App } from '../App';
 
+const getPreContents = (container: HTMLElement) =>
+  Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+
 describe('App component', () => {
   describe('page structure', () => {
     it('renders a main element with class "app-shell"', () => {
@@ -43,25 +46,25 @@ describe('App component', () => {
 
     it('TimelineEntry JSON includes expected id', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('"id": "entry-1"'))).toBe(true);
     });
 
     it('TimelineEntry JSON includes source "voice"', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('"source": "voice"'))).toBe(true);
     });
 
     it('TimelineEntry JSON includes tags', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('architecture') && text.includes('planning'))).toBe(true);
     });
 
     it('TimelineEntry JSON includes userId', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('"userId": "user-1"'))).toBe(true);
     });
   });
@@ -74,20 +77,20 @@ describe('App component', () => {
 
     it('VoiceCaptureSession JSON includes id and state', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('"id": "voice-session-1"'))).toBe(true);
       expect(preContents.some((text) => text.includes('"state": "capturing"'))).toBe(true);
     });
 
     it('VoiceCaptureSession JSON includes null endedAt', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('"endedAt": null'))).toBe(true);
     });
 
     it('VoiceCaptureSession JSON includes language "en-US"', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('"language": "en-US"'))).toBe(true);
     });
   });
@@ -100,14 +103,14 @@ describe('App component', () => {
 
     it('Insight JSON includes type "pattern" and confidence', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('"type": "pattern"'))).toBe(true);
       expect(preContents.some((text) => text.includes('"confidence": 0.91'))).toBe(true);
     });
 
     it('Insight JSON includes summary text', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(
         preContents.some((text) => text.includes('Planning work is concentrated in the first half of the day.'))
       ).toBe(true);
@@ -115,13 +118,13 @@ describe('App component', () => {
 
     it('DailyReviewSession JSON includes status "in_progress"', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('"status": "in_progress"'))).toBe(true);
     });
 
     it('DailyReviewSession JSON includes null completedAt', () => {
       const { container } = render(<App />);
-      const preContents = Array.from(container.querySelectorAll('pre')).map((p) => p.textContent ?? '');
+      const preContents = getPreContents(container);
       expect(preContents.some((text) => text.includes('"completedAt": null'))).toBe(true);
     });
   });
