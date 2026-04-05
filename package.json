@@ -10,7 +10,7 @@
   "scripts": {
     "dev:frontend": "npm --workspace @daily-timeline/frontend run dev",
     "dev:backend": "npm --workspace @daily-timeline/backend run dev",
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces"
   }
 }
