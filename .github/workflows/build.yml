@@ -23,8 +23,8 @@ jobs:
           bun install -f --trust
       - name: build
         run: |
-          bun run --filter "*" build
+          bun run build
       - name: test
         run: |
-          bun run -r test
+          bun run test
               
