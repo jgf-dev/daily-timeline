@@ -8,7 +8,7 @@ export function useVoiceCaptureSession() {
   const client = useMemo(
     () =>
       new VoiceCaptureClient({
-        sessionId: 'voice-session-1',
+        sessionId: crypto.randomUUID(),
         deviceId: 'browser-default-mic',
         mode: 'continuous transcription'
       }),
@@ -35,6 +35,9 @@ export function useVoiceCaptureSession() {
     } catch (error) {
       setCaptureState('error');
       setLastError(error instanceof Error ? error.message : 'Failed to stop capture');
+    } finally {
+      await client.stop();
+      setCaptureState('idle');
     }
   };
 

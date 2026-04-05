@@ -75,12 +75,16 @@ export class TranscriptionService {
 
   private isDuplicateFinalTranscript(sessionId: string, normalizedText: string, endTime: string): boolean {
     const endTimeMs = Date.parse(endTime);
+    if (Number.isNaN(endTimeMs)) {
+      return false; // or throw, depending on desired behavior
+    }
     const records = this.recentFinalBySession.get(sessionId) ?? [];
 
     return records.some(
       (record) => record.normalizedText === normalizedText && Math.abs(record.endTimeMs - endTimeMs) <= DEDUP_WINDOW_MS
     );
   }
+
 
   private trackFinalTranscript(sessionId: string, normalizedText: string, endTime: string): void {
     const endTimeMs = Date.parse(endTime);
