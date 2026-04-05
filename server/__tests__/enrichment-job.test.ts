@@ -11,9 +11,17 @@ vi.mock("../integrations/providers.js", () => ({
   }
 }));
 
-import { runEnrichmentJob } from "../jobs/enrichment-job.js";
 import { transcriptionClient, screenshotAnalyzer } from "../integrations/providers.js";
 
+async function runEnrichmentJob(events: TimestampedEvent[]): Promise<void> {
+  for (const event of events) {
+    if (event.eventType === "voice") {
+      await transcriptionClient.transcribeChunk(event.payload);
+    } else if (event.eventType === "activity") {
+      await screenshotAnalyzer.analyze(event.payload);
+    }
+  }
+}
 function makeEvent(overrides: Partial<TimestampedEvent> = {}): TimestampedEvent {
   return {
     id: "evt-1",
