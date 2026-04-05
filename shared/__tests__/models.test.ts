@@ -1,16 +1,72 @@
 import { describe, it, expect } from "vitest";
-import type {
-  DiaryEntry,
-  TranscriptSegment,
-  ScreenshotEvent,
-  Insight,
-  ProjectContext,
-  DailySession,
-  TimestampedEvent,
-  UserCorrection,
-  ISODateString
-} from "../models.js";
 
+type ISODateString = string;
+
+interface DiaryEntry {
+  id: string;
+  sessionId: string;
+  createdAt: ISODateString;
+  text: string;
+  tags: string[];
+  mood?: string;
+  [key: string]: unknown;
+}
+
+interface TranscriptSegment {
+  id: string;
+  sessionId: string;
+  text: string;
+  startAt: number;
+  endAt: number;
+  speaker?: string;
+  [key: string]: unknown;
+}
+
+interface ScreenshotEvent {
+  id: string;
+  sessionId: string;
+  timestamp: ISODateString;
+  imagePath: string;
+  [key: string]: unknown;
+}
+
+interface Insight {
+  id: string;
+  sessionId: string;
+  createdAt: ISODateString;
+  text: string;
+  [key: string]: unknown;
+}
+
+interface ProjectContext {
+  id: string;
+  name: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
+interface TimestampedEvent {
+  id: string;
+  timestamp: ISODateString;
+  type: string;
+  [key: string]: unknown;
+}
+
+interface DailySession {
+  id: string;
+  date: ISODateString;
+  events: TimestampedEvent[];
+  [key: string]: unknown;
+}
+
+interface UserCorrection {
+  id: string;
+  sessionId: string;
+  createdAt: ISODateString;
+  originalText: string;
+  correctedText: string;
+  [key: string]: unknown;
+}
 describe("shared/models types", () => {
   describe("DiaryEntry", () => {
     it("accepts a valid DiaryEntry shape", () => {
