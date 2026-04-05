@@ -8,9 +8,16 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:frontend": "npm --workspace @daily-timeline/frontend run dev",
-    "dev:backend": "npm --workspace @daily-timeline/backend run dev",
+    "dev": "npm run dev --workspace @daily-timeline/web",
+    "dev:web": "npm run dev --workspace @daily-timeline/web",
+    "dev:api": "npm run dev --workspace @daily-timeline/api",
+    "lint": "eslint . --cache --max-warnings=0",
+    "test": "npm run test --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "precommit": "npm run lint && npm run test && npm run build"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
