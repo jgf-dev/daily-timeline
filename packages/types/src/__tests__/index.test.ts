@@ -200,6 +200,65 @@ describe('ScreenshotEvent', () => {
     expect(Array.isArray(event.linkedTimelineEntryIds)).toBe(true);
     expect(event.linkedTimelineEntryIds).toHaveLength(2);
   });
+
+  it('entities, taskClues and anomalies are all arrays', () => {
+    const event: ScreenshotEvent = {
+      id: 'arrays-check',
+      imageUrl: 'https://example.com/img.png',
+      capturedAt: '2024-01-01T00:00:00.000Z',
+      createdAt: '2024-01-01T00:00:01.000Z',
+      windowTitle: 'Editor',
+      inferredTask: 'Working on deploy workflow',
+      ocrText: 'some text',
+      entities: ['VSCode', 'Terminal'],
+      taskClues: ['deploy', 'review'],
+      anomalies: ['error', 'warning'],
+      linkedTimelineEntryIds: [],
+    };
+    expect(Array.isArray(event.entities)).toBe(true);
+    expect(Array.isArray(event.taskClues)).toBe(true);
+    expect(Array.isArray(event.anomalies)).toBe(true);
+    expect(event.entities).toHaveLength(2);
+    expect(event.taskClues).toHaveLength(2);
+    expect(event.anomalies).toHaveLength(2);
+  });
+
+  it('imageUrl is stored as a string field on the event', () => {
+    const event: ScreenshotEvent = {
+      id: 'url-check',
+      imageUrl: 'https://storage.example.com/screenshots/abc123.png',
+      capturedAt: '2024-01-01T00:00:00.000Z',
+      createdAt: '2024-01-01T00:00:01.000Z',
+      windowTitle: null,
+      inferredTask: null,
+      ocrText: null,
+      entities: [],
+      taskClues: [],
+      anomalies: [],
+      linkedTimelineEntryIds: [],
+    };
+    expect(typeof event.imageUrl).toBe('string');
+    expect(event.imageUrl).toBe('https://storage.example.com/screenshots/abc123.png');
+  });
+
+  it('createdAt and capturedAt are separate timestamp fields', () => {
+    const event: ScreenshotEvent = {
+      id: 'timestamps',
+      imageUrl: 'https://example.com/img.png',
+      capturedAt: '2024-01-15T09:00:00.000Z',
+      createdAt: '2024-01-15T09:00:05.000Z',
+      windowTitle: null,
+      inferredTask: null,
+      ocrText: null,
+      entities: [],
+      taskClues: [],
+      anomalies: [],
+      linkedTimelineEntryIds: [],
+    };
+    expect(event.capturedAt).toBe('2024-01-15T09:00:00.000Z');
+    expect(event.createdAt).toBe('2024-01-15T09:00:05.000Z');
+    expect(event.capturedAt).not.toBe(event.createdAt);
+  });
 });
 
 describe('Insight', () => {
