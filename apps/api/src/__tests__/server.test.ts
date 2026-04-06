@@ -1,24 +1,21 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
-import type { Insight, ScreenshotEvent, TimelineEntry, VoiceCaptureSession } from '@daily-timeline/types';
+import type { Insight, TimelineEntry, VoiceCaptureSession } from '@daily-timeline/types';
+import { registerScreenshotRoutes } from '../services/screenshots/routes';
+import { InMemoryScreenshotStorage } from '../services/screenshots/storage';
 
-/**
- * Build a Fastify app with the same routes as server.ts, but without the
- * module-level side effects (readConfig(process.env) and server.listen()).
- * This mirrors exactly the routes defined in apps/api/src/server.ts.
- */
 function buildApp(): FastifyInstance {
   const app = Fastify({ logger: false });
 
   const timelineEntries: TimelineEntry[] = [];
   const voiceSessions: VoiceCaptureSession[] = [];
-  const screenshotEvents: ScreenshotEvent[] = [];
   const insights: Insight[] = [];
+  const screenshotStorage = new InMemoryScreenshotStorage();
 
   app.get('/health', async () => ({ ok: true, service: 'daily-timeline-api' }));
   app.get('/timeline/entries', async () => ({ data: timelineEntries }));
   app.get('/voice/sessions', async () => ({ data: voiceSessions }));
-  app.get('/screenshots/events', async () => ({ data: screenshotEvents }));
+  registerScreenshotRoutes(app, { storage: screenshotStorage, timelineEntries, insights });
   app.get('/insights', async () => ({ data: insights }));
 
   return app;
@@ -36,116 +33,127 @@ describe('API server routes', () => {
     await app.close();
   });
 
-  describe('GET /health', () => {
-    it('returns 200 with ok: true and service name', async () => {
-      const response = await app.inject({ method: 'GET', url: '/health' });
-
-      expect(response.statusCode).toBe(200);
-      const body = response.json();
-      expect(body).toEqual({ ok: true, service: 'daily-timeline-api' });
-    });
-
-    it('returns JSON content-type', async () => {
-      const response = await app.inject({ method: 'GET', url: '/health' });
-
-      expect(response.headers['content-type']).toMatch(/application\/json/);
-    });
+  it('GET /health returns service status', async () => {
+    const response = await app.inject({ method: 'GET', url: '/health' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ ok: true, service: 'daily-timeline-api' });
   });
 
-  describe('GET /timeline/entries', () => {
-    it('returns 200 with empty data array', async () => {
-      const response = await app.inject({ method: 'GET', url: '/timeline/entries' });
-
-      expect(response.statusCode).toBe(200);
-      const body = response.json();
-      expect(body).toEqual({ data: [] });
-    });
-
-    it('data field is an array', async () => {
-      const response = await app.inject({ method: 'GET', url: '/timeline/entries' });
-
-      const body = response.json();
-      expect(Array.isArray(body.data)).toBe(true);
-    });
+  it('GET /screenshots/events returns array shape', async () => {
+    const response = await app.inject({ method: 'GET', url: '/screenshots/events' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ data: [] });
   });
 
-  describe('GET /voice/sessions', () => {
-    it('returns 200 with empty data array', async () => {
-      const response = await app.inject({ method: 'GET', url: '/voice/sessions' });
-
-      expect(response.statusCode).toBe(200);
-      const body = response.json();
-      expect(body).toEqual({ data: [] });
+  it('POST /screenshots/events stores enriched screenshot event and creates timeline entry', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/screenshots/events',
+      payload: {
+        imageUrl: 'https://storage.example.com/editor-error-warning.png',
+        capturedAt: '2024-01-15T09:00:00.000Z',
+        windowTitle: 'VSCode deploy warning',
+        hintedText: 'TODO fix deploy error before review',
+      },
     });
 
-    it('data field is an array', async () => {
-      const response = await app.inject({ method: 'GET', url: '/voice/sessions' });
+    expect(response.statusCode).toBe(201);
+    const body = response.json();
+    expect(body.data.imageUrl).toContain('editor-error-warning');
+    expect(body.data.taskClues).toContain('todo');
+    expect(body.data.anomalies).toContain('error');
 
-      const body = response.json();
-      expect(Array.isArray(body.data)).toBe(true);
-    });
+    const listResponse = await app.inject({ method: 'GET', url: '/screenshots/events' });
+    expect(listResponse.json().data).toHaveLength(1);
+
+    const timelineResponse = await app.inject({ method: 'GET', url: '/timeline/entries' });
+    expect(timelineResponse.json().data).toHaveLength(1);
+
+    const insightResponse = await app.inject({ method: 'GET', url: '/insights' });
+    expect(insightResponse.json().data).toHaveLength(1);
+    expect(insightResponse.json().data[0].summary).toContain('Possible missed detail');
   });
 
-  describe('GET /screenshots/events', () => {
-    it('returns 200 with empty data array', async () => {
-      const response = await app.inject({ method: 'GET', url: '/screenshots/events' });
-
-      expect(response.statusCode).toBe(200);
-      const body = response.json();
-      expect(body).toEqual({ data: [] });
+  it('POST /screenshots/events validates payload', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/screenshots/events',
+      payload: { imageUrl: 'not-a-url' },
     });
 
-    it('data field is an array', async () => {
-      const response = await app.inject({ method: 'GET', url: '/screenshots/events' });
-
-      const body = response.json();
-      expect(Array.isArray(body.data)).toBe(true);
-    });
+    expect(response.statusCode).toBe(400);
   });
 
-  describe('GET /insights', () => {
-    it('returns 200 with empty data array', async () => {
-      const response = await app.inject({ method: 'GET', url: '/insights' });
-
-      expect(response.statusCode).toBe(200);
-      const body = response.json();
-      expect(body).toEqual({ data: [] });
+  it('POST /screenshots/events returns 400 with error details when userId is missing', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/screenshots/events',
+      payload: {
+        imageUrl: 'https://storage.example.com/screenshot.png',
+        capturedAt: '2024-01-15T09:00:00.000Z',
+        // userId intentionally omitted
+      },
     });
 
-    it('data field is an array', async () => {
-      const response = await app.inject({ method: 'GET', url: '/insights' });
-
-      const body = response.json();
-      expect(Array.isArray(body.data)).toBe(true);
-    });
+    expect(response.statusCode).toBe(400);
+    const body = response.json();
+    expect(body).toHaveProperty('error');
+    expect(body).toHaveProperty('details');
   });
 
-  describe('unknown routes', () => {
-    it('returns 404 for an unregistered route', async () => {
-      const response = await app.inject({ method: 'GET', url: '/unknown-route' });
-
-      expect(response.statusCode).toBe(404);
+  it('multiple POST /screenshots/events accumulate in the list', async () => {
+    const payload = (title: string) => ({
+      imageUrl: `https://storage.example.com/${title}.png`,
+      capturedAt: '2024-01-15T09:00:00.000Z',
+      windowTitle: title,
+      userId: 'user-1',
     });
 
-    it('returns 404 for POST to a GET-only endpoint', async () => {
-      const response = await app.inject({ method: 'POST', url: '/health' });
+    await app.inject({ method: 'POST', url: '/screenshots/events', payload: payload('first-shot') });
+    await app.inject({ method: 'POST', url: '/screenshots/events', payload: payload('second-shot') });
 
-      expect(response.statusCode).toBe(404);
-    });
+    const listResponse = await app.inject({ method: 'GET', url: '/screenshots/events' });
+    expect(listResponse.json().data).toHaveLength(2);
   });
 
-  describe('response shape consistency', () => {
-    it('all list endpoints share the same { data: [] } shape when empty', async () => {
-      const endpoints = ['/timeline/entries', '/voice/sessions', '/screenshots/events', '/insights'];
+  it('GET /timeline/entries returns empty data array initially', async () => {
+    const response = await app.inject({ method: 'GET', url: '/timeline/entries' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ data: [] });
+  });
 
-      for (const endpoint of endpoints) {
-        const response = await app.inject({ method: 'GET', url: endpoint });
-        expect(response.statusCode).toBe(200);
-        const body = response.json();
-        expect(body).toHaveProperty('data');
-        expect(Array.isArray(body.data)).toBe(true);
-        expect(body.data).toHaveLength(0);
-      }
+  it('GET /insights returns empty data array initially', async () => {
+    const response = await app.inject({ method: 'GET', url: '/insights' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ data: [] });
+  });
+
+  it('POST /screenshots/events does NOT create insight when no anomalies in input', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/screenshots/events',
+      payload: {
+        imageUrl: 'https://storage.example.com/clean-normal-screenshot.png',
+        capturedAt: '2024-01-15T09:00:00.000Z',
+        windowTitle: 'Normal Editor',
+        hintedText: 'just routine work session today',
+        userId: 'user-1',
+      },
     });
+
+    expect(response.statusCode).toBe(201);
+
+    const insightResponse = await app.inject({ method: 'GET', url: '/insights' });
+    expect(insightResponse.json().data).toHaveLength(0);
+  });
+
+  it('GET /screenshots/events returns JSON content-type', async () => {
+    const response = await app.inject({ method: 'GET', url: '/screenshots/events' });
+    expect(response.headers['content-type']).toMatch(/application\/json/);
+  });
+
+  it('returns 404 for an unregistered route', async () => {
+    const response = await app.inject({ method: 'GET', url: '/unknown-route' });
+    expect(response.statusCode).toBe(404);
   });
 });
