@@ -5,7 +5,7 @@ export const ScreenshotIngestionSchema = z.object({
   capturedAt: z.string().datetime(),
   windowTitle: z.string().min(1).nullable().optional(),
   hintedText: z.string().min(1).nullable().optional(),
-  userId: z.string().default('user-1'),
+  userId: z.string().min(1),
 });
 
 export type ScreenshotIngestionInput = z.infer<typeof ScreenshotIngestionSchema>;
