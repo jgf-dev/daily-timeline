@@ -21,7 +21,14 @@ export function extractOcrText(input: ScreenshotAnalysisInput): string | null {
     return input.hintedText.trim();
   }
 
-  const fromUrl = decodeURIComponent(input.imageUrl).replace(/[-_]/g, ' ');
+  let decodedImageUrl = input.imageUrl;
+  try {
+    decodedImageUrl = decodeURIComponent(input.imageUrl);
+  } catch {
+    decodedImageUrl = input.imageUrl;
+  }
+
+  const fromUrl = decodedImageUrl.replace(/[-_]/g, ' ');
   const match = fromUrl.match(/[a-zA-Z0-9\s]{12,}/);
   return match ? match[0].trim() : null;
 }
